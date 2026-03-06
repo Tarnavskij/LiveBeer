@@ -23,11 +23,10 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 private val Yellow = Color(0xFFFFE000)
-private val YellowOff = Color(0xFFFFF59D)
 private val Dark = Color(0xFF07080D)
 private val Gray = Color(0xFF8E8E93)
-private val KeyBg = Color(0xFFF2F2F7)
 private val Blue = Color(0xFF007AFF)
+private val KeyBg = Color(0xFFFFFFFF)
 
 @Composable
 fun LoginScreen(
@@ -40,15 +39,18 @@ fun LoginScreen(
     var isError by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
 
-    val formatted = buildString {
-        append("+7 ")
-        if (phone.isNotEmpty()) {
-            append("(")
-            append(phone.take(3))
-            if (phone.length >= 3) append(")")
-            if (phone.length > 3) append(" ${phone.substring(3, minOf(6, phone.length))}")
-            if (phone.length > 6) append(" ${phone.substring(6, minOf(8, phone.length))}")
-            if (phone.length > 8) append(" ${phone.substring(8, minOf(10, phone.length))}")
+    // +7 серый, введённые цифры тёмные
+    val formattedAnnotated = buildAnnotatedString {
+        withStyle(SpanStyle(color = if (isError) Color(0xFFFF3B30) else Gray)) { append("+7 ") }
+        withStyle(SpanStyle(color = if (isError) Color(0xFFFF3B30) else Dark)) {
+            if (phone.isNotEmpty()) {
+                append("(")
+                append(phone.take(3))
+                if (phone.length >= 3) append(")")
+                if (phone.length > 3) append(" ${phone.substring(3, minOf(6, phone.length))}")
+                if (phone.length > 6) append(" ${phone.substring(6, minOf(8, phone.length))}")
+                if (phone.length > 8) append(" ${phone.substring(8, minOf(10, phone.length))}")
+            }
         }
     }
 
@@ -74,31 +76,34 @@ fun LoginScreen(
         Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp)) {
             Text(
                 text = "Введите ваш\nномер телефона",
-                fontSize = 26.sp,
+                fontSize = 28.sp,
                 fontWeight = FontWeight.Bold,
                 color = Dark,
-                lineHeight = 32.sp
+                lineHeight = 34.sp
             )
             Spacer(modifier = Modifier.height(6.dp))
-            Text("Мы вышлем вам проверочный код", fontSize = 14.sp, color = Gray)
+            Text("Мы вышлем вам проверочный код", fontSize = 15.sp, color = Gray)
         }
 
-        Spacer(modifier = Modifier.height(28.dp))
+        Spacer(modifier = Modifier.height(24.dp))
 
         Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp)) {
             Text(
-                text = formatted,
-                fontSize = 28.sp,
-                fontWeight = FontWeight.Medium,
-                color = if (isError) Color.Red else Dark
+                text = formattedAnnotated,
+                fontSize = 30.sp,
+                fontWeight = FontWeight.Medium
             )
             if (isError) {
                 Spacer(modifier = Modifier.height(6.dp))
-                Text("Указанный вами номер не найден", color = Color.Red, fontSize = 13.sp)
+                Text(
+                    "Указанный вами номер не найден",
+                    color = Color(0xFFFF3B30),
+                    fontSize = 13.sp
+                )
             }
         }
 
-        Spacer(modifier = Modifier.height(28.dp))
+        Spacer(modifier = Modifier.weight(1f))
 
         Button(
             onClick = {
@@ -110,12 +115,15 @@ fun LoginScreen(
                     isLoading = false
                 }
             },
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp).height(52.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 24.dp)
+                .height(52.dp),
             enabled = phone.length == 10 && !isLoading,
             colors = ButtonDefaults.buttonColors(
                 containerColor = Yellow,
                 contentColor = Dark,
-                disabledContainerColor = YellowOff,
+                disabledContainerColor = Color(0xFFE5E5EA),
                 disabledContentColor = Gray
             ),
             shape = RoundedCornerShape(12.dp)
@@ -131,18 +139,17 @@ fun LoginScreen(
 
         Text(
             text = buildAnnotatedString {
-                append("У вас нет аккаунта? ")
+                withStyle(SpanStyle(color = Gray)) { append("У вас нет аккаунта? ") }
                 withStyle(SpanStyle(color = Blue)) { append("Регистрация") }
             },
             fontSize = 14.sp,
-            color = Gray,
             modifier = Modifier.clickable { onRegister() }
         )
 
-        Spacer(modifier = Modifier.height(28.dp))
+        Spacer(modifier = Modifier.height(12.dp))
 
         PhoneKeyboard(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp),
+            modifier = Modifier.fillMaxWidth(),
             onNumberClick = { digit ->
                 if (phone.length < 10) { phone += digit; isError = false }
             },
@@ -161,20 +168,33 @@ private fun PhoneKeyboard(
         listOf("1" to "", "2" to "ABC", "3" to "DEF"),
         listOf("4" to "GHI", "5" to "JKL", "6" to "MNO"),
         listOf("7" to "PQRS", "8" to "TUV", "9" to "WXYZ"),
-        listOf("+ * #" to "", "0" to "", "⌫" to "")
+        listOf("sym" to "", "0" to "", "back" to "")
     )
 
-    Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(4.dp)) {
+    Column(
+        modifier = modifier
+            .background(Color(0xFFCACDD2))
+            .padding(horizontal = 6.dp, vertical = 6.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
         rows.forEach { row ->
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
-                row.forEach { (digit, letters) ->
-                    KeyboardKey(digit = digit, letters = letters, onClick = {
-                        when (digit) {
-                            "⌫" -> onBackspace()
-                            "+ * #" -> {}
-                            else -> onNumberClick(digit)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                row.forEach { (key, letters) ->
+                    KeyboardKey(
+                        modifier = Modifier.weight(1f),
+                        keyId = key,
+                        letters = letters,
+                        onClick = {
+                            when (key) {
+                                "back" -> onBackspace()
+                                "sym" -> {}
+                                else -> onNumberClick(key)
+                            }
                         }
-                    })
+                    )
                 }
             }
         }
@@ -182,31 +202,46 @@ private fun PhoneKeyboard(
 }
 
 @Composable
-private fun KeyboardKey(digit: String, letters: String, onClick: () -> Unit) {
+private fun KeyboardKey(
+    modifier: Modifier = Modifier,
+    keyId: String,
+    letters: String,
+    onClick: () -> Unit
+) {
+    val isSpecial = keyId == "sym" || keyId == "back"
+
     Box(
-        modifier = Modifier
-            .size(width = 100.dp, height = 60.dp)
+        modifier = modifier
+            .height(56.dp)
             .background(
-                color = if (digit == "⌫" || digit == "+ * #") Color.Transparent else KeyBg,
-                shape = RoundedCornerShape(10.dp)
+                color = if (isSpecial) Color.Transparent else KeyBg,
+                shape = RoundedCornerShape(9.dp)
             )
             .clickable { onClick() },
         contentAlignment = Alignment.Center
     ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(
-                text = digit,
-                fontSize = if (digit.length > 1) 16.sp else 24.sp,
-                fontWeight = FontWeight.Normal,
+        when (keyId) {
+            "back" -> Text(
+                text = "⌫",
+                fontSize = 22.sp,
                 color = Dark
             )
-            if (letters.isNotEmpty()) {
+            "sym" -> Text("* # +", fontSize = 16.sp, color = Dark, fontWeight = FontWeight.Normal)
+            else -> Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(
-                    text = letters,
-                    fontSize = 9.sp,
-                    color = Color(0xFF3C3C43).copy(alpha = 0.6f),
-                    letterSpacing = 1.sp
+                    text = keyId,
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Light,
+                    color = Dark
                 )
+                if (letters.isNotEmpty()) {
+                    Text(
+                        text = letters,
+                        fontSize = 9.sp,
+                        color = Color(0xFF3C3C43).copy(alpha = 0.6f),
+                        letterSpacing = 1.sp
+                    )
+                }
             }
         }
     }

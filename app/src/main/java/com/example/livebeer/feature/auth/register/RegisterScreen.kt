@@ -25,7 +25,6 @@ import androidx.compose.ui.unit.sp
 import com.example.livebeer.core.ui.theme.LiveBeerTheme
 
 private val Yellow = Color(0xFFFFE000)
-private val YellowOff = Color(0xFFFFF59D)
 private val Dark = Color(0xFF07080D)
 private val Gray = Color(0xFF8E8E93)
 private val Blue = Color(0xFF007AFF)
@@ -90,7 +89,7 @@ fun RegisterScreen(
             Text("Назад", color = Blue, fontSize = 16.sp, modifier = Modifier.clickable { onBack() })
         }
 
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(16.dp))
 
         Column(
             modifier = Modifier
@@ -99,13 +98,13 @@ fun RegisterScreen(
         ) {
             Text(
                 text = "Регистрация\nаккаунта",
-                fontSize = 26.sp,
+                fontSize = 32.sp,
                 fontWeight = FontWeight.Bold,
                 color = Dark,
-                lineHeight = 32.sp
+                lineHeight = 38.sp
             )
-            Spacer(modifier = Modifier.height(4.dp))
-            Text("Заполните поля данных ниже", fontSize = 14.sp, color = Gray)
+            Spacer(modifier = Modifier.height(6.dp))
+            Text("Заполните поля данных ниже", fontSize = 15.sp, color = Gray)
 
             Spacer(modifier = Modifier.height(28.dp))
 
@@ -128,7 +127,7 @@ fun RegisterScreen(
             )
             if (phoneError) {
                 Spacer(modifier = Modifier.height(4.dp))
-                Text("Ошибка номера", color = Red, fontSize = 12.sp)
+                Text("Ошибка в номере", color = Red, fontSize = 12.sp)
             }
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -186,13 +185,12 @@ fun RegisterScreen(
                 Spacer(modifier = Modifier.width(10.dp))
                 Text(
                     text = buildAnnotatedString {
-                        append("Я согласен с ")
+                        withStyle(SpanStyle(color = Gray)) { append("Я согласен с ") }
                         withStyle(SpanStyle(color = Blue)) {
-                            append("условиями обработки персональных данных")
+                            append("условиями обработки персональных данных.")
                         }
                     },
                     fontSize = 13.sp,
-                    color = Gray,
                     lineHeight = 18.sp
                 )
             }
@@ -209,7 +207,7 @@ fun RegisterScreen(
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Yellow,
                     contentColor = Dark,
-                    disabledContainerColor = YellowOff,
+                    disabledContainerColor = Color(0xFFE5E5EA),
                     disabledContentColor = Gray
                 ),
                 shape = RoundedCornerShape(12.dp)
