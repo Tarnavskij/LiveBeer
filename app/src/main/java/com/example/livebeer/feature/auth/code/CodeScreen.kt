@@ -1,7 +1,6 @@
 package com.example.livebeer.feature.auth.code
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -25,12 +24,12 @@ import com.example.livebeer.core.ui.theme.LiveBeerTheme
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-private val YellowPrimary  = Color(0xFFFFE000)
-private val YellowDisabled = Color(0xFFFFF59D)
-private val TextPrimary    = Color(0xFF07080D)
-private val TextGray       = Color(0xFF8E8E93)
-private val BlueLink       = Color(0xFF007AFF)
-private val KeyBackground  = Color(0xFFF2F2F7)
+private val Yellow = Color(0xFFFFE000)
+private val YellowOff = Color(0xFFFFF59D)
+private val Dark = Color(0xFF07080D)
+private val Gray = Color(0xFF8E8E93)
+private val Blue = Color(0xFF007AFF)
+private val KeyBg = Color(0xFFF2F2F7)
 
 @Composable
 fun CodeScreen(
@@ -44,19 +43,13 @@ fun CodeScreen(
     val scope = rememberCoroutineScope()
 
     LaunchedEffect(Unit) {
-        while (timer > 0) {
-            delay(1000)
-            timer--
-        }
+        while (timer > 0) { delay(1000); timer-- }
     }
 
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.White),
+        modifier = Modifier.fillMaxSize().background(Color.White),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // ── Top bar ──────────────────────────────────────
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -65,104 +58,69 @@ fun CodeScreen(
             verticalAlignment = Alignment.CenterVertically
         ) {
             IconButton(onClick = onBack) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "Назад",
-                    tint = BlueLink
-                )
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null, tint = Blue)
             }
-            Text(
-                text = "Назад",
-                color = BlueLink,
-                fontSize = 16.sp,
-                modifier = Modifier.clickable { onBack() }
-            )
+            Text("Назад", color = Blue, fontSize = 16.sp, modifier = Modifier.clickable { onBack() })
         }
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // ── Заголовок ─────────────────────────────────────
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 24.dp)
-        ) {
+        Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp)) {
             Text(
                 text = "Введите номер\nактивации",
                 fontSize = 26.sp,
                 fontWeight = FontWeight.Bold,
-                color = TextPrimary,
+                color = Dark,
                 lineHeight = 32.sp
             )
             Spacer(modifier = Modifier.height(6.dp))
-            Text(
-                text = "Мы выслали его на номер +7 (913) 210 ** **",
-                fontSize = 14.sp,
-                color = TextGray
-            )
+            Text("Мы выслали его на номер +7 (913) 210 ** **", fontSize = 14.sp, color = Gray)
         }
 
         Spacer(modifier = Modifier.height(32.dp))
 
-        // ── 4 ячейки кода ─────────────────────────────────
         Row(
             modifier = Modifier.padding(horizontal = 24.dp),
             horizontalArrangement = Arrangement.spacedBy(20.dp)
         ) {
-            repeat(4) { index ->
+            repeat(4) { i ->
                 CodeCell(
-                    digit = code.getOrNull(index)?.toString(),
+                    digit = code.getOrNull(i)?.toString(),
                     isError = isError,
-                    isFilled = index < code.length
+                    isFilled = i < code.length
                 )
             }
         }
 
         if (isError) {
             Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = "Неверный код",
-                color = Color.Red,
-                fontSize = 13.sp
-            )
+            Text("Неверный код", color = Color.Red, fontSize = 13.sp)
         }
 
         Spacer(modifier = Modifier.height(28.dp))
 
-        // ── Кнопка "Войти в систему" ──────────────────────
         Button(
             onClick = {
                 isLoading = true
                 isError = false
                 scope.launch {
                     delay(1500)
-                    if (code == "1111") {
-                        onSuccess()
-                    } else {
-                        isError = true
-                    }
+                    if (code == "1111") onSuccess() else isError = true
                     isLoading = false
                 }
             },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 24.dp)
-                .height(52.dp),
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp).height(52.dp),
             enabled = code.length == 4 && !isLoading,
             colors = ButtonDefaults.buttonColors(
-                containerColor = YellowPrimary,
-                contentColor = TextPrimary,
-                disabledContainerColor = YellowDisabled,
-                disabledContentColor = TextGray
+                containerColor = Yellow,
+                contentColor = Dark,
+                disabledContainerColor = YellowOff,
+                disabledContentColor = Gray
             ),
             shape = RoundedCornerShape(12.dp)
         ) {
             if (isLoading) {
-                CircularProgressIndicator(
-                    color = TextPrimary,
-                    strokeWidth = 2.dp,
-                    modifier = Modifier.size(22.dp)
-                )
+                CircularProgressIndicator(color = Dark, strokeWidth = 2.dp, modifier = Modifier.size(22.dp))
             } else {
                 Text("Войти в систему", fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
             }
@@ -170,61 +128,39 @@ fun CodeScreen(
 
         Spacer(modifier = Modifier.height(14.dp))
 
-        // ── Таймер / ссылка повтора ───────────────────────
         if (timer > 0) {
             Text(
                 text = "Отправить код повторно можно через 00:${timer.toString().padStart(2, '0')}",
                 fontSize = 13.sp,
-                color = TextGray
+                color = Gray
             )
         } else {
             Text(
                 text = buildAnnotatedString {
-                    withStyle(SpanStyle(color = BlueLink)) {
-                        append("↻ Отправить код повторно")
-                    }
+                    withStyle(SpanStyle(color = Blue)) { append("↻ Отправить код повторно") }
                 },
                 fontSize = 14.sp,
-                modifier = Modifier.clickable {
-                    timer = 47
-                    code = ""
-                    isError = false
-                }
+                modifier = Modifier.clickable { timer = 47; code = ""; isError = false }
             )
         }
 
         Spacer(modifier = Modifier.height(28.dp))
 
-        // ── Клавиатура ────────────────────────────────────
         CodeKeyboard(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 12.dp),
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp),
             onNumberClick = { digit ->
-                if (code.length < 4) {
-                    code += digit
-                    isError = false
-                    // автоматически проверяем когда 4 цифры
-                }
+                if (code.length < 4) { code += digit; isError = false }
             },
-            onBackspace = {
-                if (code.isNotEmpty()) code = code.dropLast(1)
-            }
+            onBackspace = { if (code.isNotEmpty()) code = code.dropLast(1) }
         )
     }
 }
 
-// ─── Одна ячейка кода ──────────────────────────────────────
-// Пустая — точка, заполненная — цифра, ошибка — красный
 @Composable
-private fun CodeCell(
-    digit: String?,
-    isError: Boolean,
-    isFilled: Boolean
-) {
-    val borderColor = when {
+private fun CodeCell(digit: String?, isError: Boolean, isFilled: Boolean) {
+    val lineColor = when {
         isError -> Color.Red
-        isFilled -> TextPrimary
+        isFilled -> Dark
         else -> Color(0xFFCCCCCC)
     }
 
@@ -232,9 +168,8 @@ private fun CodeCell(
         modifier = Modifier
             .size(56.dp)
             .drawBehind {
-                // Нижняя линия вместо рамки — как в макете
                 drawLine(
-                    color = borderColor,
+                    color = lineColor,
                     start = Offset(0f, size.height),
                     end = Offset(size.width, size.height),
                     strokeWidth = 2.dp.toPx()
@@ -242,57 +177,43 @@ private fun CodeCell(
             },
         contentAlignment = Alignment.Center
     ) {
-        when {
-            digit != null -> Text(
+        if (digit != null) {
+            Text(
                 text = digit,
                 fontSize = 28.sp,
                 fontWeight = FontWeight.Medium,
-                color = if (isError) Color.Red else TextPrimary
+                color = if (isError) Color.Red else Dark
             )
-            else -> Text(
-                text = "•",
-                fontSize = 28.sp,
-                color = Color(0xFFCCCCCC)
-            )
+        } else {
+            Text("•", fontSize = 28.sp, color = Color(0xFFCCCCCC))
         }
     }
 }
 
-// ─── Клавиатура ────────────────────────────────────────────
 @Composable
 private fun CodeKeyboard(
     modifier: Modifier = Modifier,
     onNumberClick: (String) -> Unit,
     onBackspace: () -> Unit
 ) {
-    val keys = listOf(
+    val rows = listOf(
         listOf("1" to "", "2" to "ABC", "3" to "DEF"),
         listOf("4" to "GHI", "5" to "JKL", "6" to "MNO"),
         listOf("7" to "PQRS", "8" to "TUV", "9" to "WXYZ"),
         listOf("+ * #" to "", "0" to "", "⌫" to "")
     )
 
-    Column(
-        modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(4.dp)
-    ) {
-        keys.forEach { row ->
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceEvenly
-            ) {
+    Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(4.dp)) {
+        rows.forEach { row ->
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
                 row.forEach { (digit, letters) ->
-                    KeyboardKey(
-                        digit = digit,
-                        letters = letters,
-                        onClick = {
-                            when (digit) {
-                                "⌫" -> onBackspace()
-                                "+ * #" -> { }
-                                else -> onNumberClick(digit)
-                            }
+                    KeyboardKey(digit = digit, letters = letters, onClick = {
+                        when (digit) {
+                            "⌫" -> onBackspace()
+                            "+ * #" -> {}
+                            else -> onNumberClick(digit)
                         }
-                    )
+                    })
                 }
             }
         }
@@ -300,16 +221,12 @@ private fun CodeKeyboard(
 }
 
 @Composable
-private fun KeyboardKey(
-    digit: String,
-    letters: String,
-    onClick: () -> Unit
-) {
+private fun KeyboardKey(digit: String, letters: String, onClick: () -> Unit) {
     Box(
         modifier = Modifier
             .size(width = 100.dp, height = 60.dp)
             .background(
-                color = if (digit == "⌫" || digit == "+ * #") Color.Transparent else KeyBackground,
+                color = if (digit == "⌫" || digit == "+ * #") Color.Transparent else KeyBg,
                 shape = RoundedCornerShape(10.dp)
             )
             .clickable { onClick() },
@@ -320,7 +237,7 @@ private fun KeyboardKey(
                 text = digit,
                 fontSize = if (digit.length > 1) 16.sp else 24.sp,
                 fontWeight = FontWeight.Normal,
-                color = TextPrimary
+                color = Dark
             )
             if (letters.isNotEmpty()) {
                 Text(

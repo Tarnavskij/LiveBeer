@@ -20,14 +20,14 @@ import androidx.compose.ui.unit.sp
 import com.example.livebeer.R
 import com.example.livebeer.core.ui.theme.LiveBeerTheme
 
-private val YellowPrimary = Color(0xFFFFE000)
-private val TextPrimary   = Color(0xFF07080D)
+private val Yellow = Color(0xFFFFE000)
+private val Dark = Color(0xFF07080D)
 
 @Composable
 fun WelcomeScreen(
-    onLogin:    () -> Unit = {},
+    onLogin: () -> Unit = {},
     onRegister: () -> Unit = {},
-    onGuest:    () -> Unit = {}
+    onGuest: () -> Unit = {}
 ) {
     Column(
         modifier = Modifier
@@ -35,8 +35,6 @@ fun WelcomeScreen(
             .background(Color.White),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Одна картинка — лого + хмель + руки с бокалами
-        // Файл: res/drawable/group_115.png
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -47,7 +45,6 @@ fun WelcomeScreen(
                 )
         )
 
-        // Нижняя часть: заголовок + кнопки
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -58,7 +55,7 @@ fun WelcomeScreen(
                 text = "Программа лояльности для клиентов LiveBeer",
                 fontSize = 28.sp,
                 fontWeight = FontWeight.SemiBold,
-                color = TextPrimary,
+                color = Dark,
                 lineHeight = 34.sp,
                 textAlign = TextAlign.Left,
                 modifier = Modifier.fillMaxWidth()
@@ -75,8 +72,8 @@ fun WelcomeScreen(
                     modifier = Modifier.weight(1f).height(52.dp),
                     shape = RoundedCornerShape(10.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = YellowPrimary,
-                        contentColor = TextPrimary
+                        containerColor = Yellow,
+                        contentColor = Dark
                     )
                 ) {
                     Text("Вход", fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
@@ -87,8 +84,8 @@ fun WelcomeScreen(
                     modifier = Modifier.weight(1f).height(52.dp),
                     shape = RoundedCornerShape(10.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = YellowPrimary,
-                        contentColor = TextPrimary
+                        containerColor = Yellow,
+                        contentColor = Dark
                     )
                 ) {
                     Text("Регистрация", fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
@@ -104,7 +101,7 @@ fun WelcomeScreen(
                 border = BorderStroke(1.dp, Color(0xFFCCCCCC)),
                 colors = ButtonDefaults.outlinedButtonColors(
                     containerColor = Color.White,
-                    contentColor = TextPrimary
+                    contentColor = Dark
                 )
             ) {
                 Text("Войти без регистрации", fontSize = 16.sp, fontWeight = FontWeight.Medium)

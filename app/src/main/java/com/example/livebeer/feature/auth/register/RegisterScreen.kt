@@ -24,14 +24,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.livebeer.core.ui.theme.LiveBeerTheme
 
-private val YellowPrimary  = Color(0xFFFFE000)
-private val YellowDisabled = Color(0xFFFFF59D)
-private val TextPrimary    = Color(0xFF07080D)
-private val TextGray       = Color(0xFF8E8E93)
-private val BlueLink       = Color(0xFF007AFF)
-private val ErrorRed       = Color(0xFFFF3B30)
-private val FieldBorder    = Color(0xFFE0E0E0)
-private val FieldBorderErr = Color(0xFFFF3B30)
+private val Yellow = Color(0xFFFFE000)
+private val YellowOff = Color(0xFFFFF59D)
+private val Dark = Color(0xFF07080D)
+private val Gray = Color(0xFF8E8E93)
+private val Blue = Color(0xFF007AFF)
+private val Red = Color(0xFFFF3B30)
+private val BorderDefault = Color(0xFFE0E0E0)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -43,41 +42,32 @@ fun RegisterScreen(
     var name by remember { mutableStateOf("") }
     var birthDate by remember { mutableStateOf("") }
     var agreed by remember { mutableStateOf(false) }
-
     var phoneError by remember { mutableStateOf(false) }
     var showDatePicker by remember { mutableStateOf(false) }
 
-    val isFormValid = phone.isNotBlank() && name.isNotBlank() &&
-            birthDate.isNotBlank() && agreed
+    val formValid = phone.isNotBlank() && name.isNotBlank() && birthDate.isNotBlank() && agreed
 
-    // ── DatePicker ────────────────────────────────────────
     if (showDatePicker) {
-        val datePickerState = rememberDatePickerState()
+        val pickerState = rememberDatePickerState()
         DatePickerDialog(
             onDismissRequest = { showDatePicker = false },
             confirmButton = {
                 TextButton(onClick = {
-                    datePickerState.selectedDateMillis?.let { millis ->
-                        val cal = java.util.Calendar.getInstance().apply {
-                            timeInMillis = millis
-                        }
-                        val day   = cal.get(java.util.Calendar.DAY_OF_MONTH)
-                        val month = cal.get(java.util.Calendar.MONTH) + 1
-                        val year  = cal.get(java.util.Calendar.YEAR)
-                        birthDate = "%02d.%02d.%04d".format(day, month, year)
+                    pickerState.selectedDateMillis?.let { ms ->
+                        val cal = java.util.Calendar.getInstance().apply { timeInMillis = ms }
+                        val d = cal.get(java.util.Calendar.DAY_OF_MONTH)
+                        val m = cal.get(java.util.Calendar.MONTH) + 1
+                        val y = cal.get(java.util.Calendar.YEAR)
+                        birthDate = "%02d.%02d.%04d".format(d, m, y)
                     }
                     showDatePicker = false
-                }) {
-                    Text("Готово", color = BlueLink)
-                }
+                }) { Text("Готово", color = Blue) }
             },
             dismissButton = {
-                TextButton(onClick = { showDatePicker = false }) {
-                    Text("Отмена", color = BlueLink)
-                }
+                TextButton(onClick = { showDatePicker = false }) { Text("Отмена", color = Blue) }
             }
         ) {
-            DatePicker(state = datePickerState)
+            DatePicker(state = pickerState)
         }
     }
 
@@ -87,7 +77,6 @@ fun RegisterScreen(
             .background(Color.White)
             .verticalScroll(rememberScrollState())
     ) {
-        // ── Top bar ──────────────────────────────────────
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -96,18 +85,9 @@ fun RegisterScreen(
             verticalAlignment = Alignment.CenterVertically
         ) {
             IconButton(onClick = onBack) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "Назад",
-                    tint = BlueLink
-                )
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null, tint = Blue)
             }
-            Text(
-                text = "Назад",
-                color = BlueLink,
-                fontSize = 16.sp,
-                modifier = Modifier.clickable { onBack() }
-            )
+            Text("Назад", color = Blue, fontSize = 16.sp, modifier = Modifier.clickable { onBack() })
         }
 
         Spacer(modifier = Modifier.height(8.dp))
@@ -117,163 +97,124 @@ fun RegisterScreen(
                 .fillMaxWidth()
                 .padding(horizontal = 24.dp)
         ) {
-            // ── Заголовок ─────────────────────────────────
             Text(
                 text = "Регистрация\nаккаунта",
                 fontSize = 26.sp,
                 fontWeight = FontWeight.Bold,
-                color = TextPrimary,
+                color = Dark,
                 lineHeight = 32.sp
             )
             Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = "Заполните поля данных ниже",
-                fontSize = 14.sp,
-                color = TextGray
-            )
+            Text("Заполните поля данных ниже", fontSize = 14.sp, color = Gray)
 
             Spacer(modifier = Modifier.height(28.dp))
 
-            // ── Телефон ───────────────────────────────────
-            Text(
-                text = "Номер телефона",
-                fontSize = 13.sp,
-                color = TextGray
-            )
+            Text("Номер телефона", fontSize = 13.sp, color = Gray)
             Spacer(modifier = Modifier.height(6.dp))
             OutlinedTextField(
                 value = phone,
-                onValueChange = {
-                    phone = it
-                    phoneError = false
-                },
+                onValueChange = { phone = it; phoneError = false },
                 modifier = Modifier.fillMaxWidth(),
-                placeholder = { Text("+7", color = TextGray) },
+                placeholder = { Text("+7", color = Gray) },
                 isError = phoneError,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
                 singleLine = true,
                 shape = RoundedCornerShape(10.dp),
                 colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = TextPrimary,
-                    unfocusedBorderColor = FieldBorder,
-                    errorBorderColor = FieldBorderErr
+                    focusedBorderColor = Dark,
+                    unfocusedBorderColor = BorderDefault,
+                    errorBorderColor = Red
                 )
             )
             if (phoneError) {
                 Spacer(modifier = Modifier.height(4.dp))
-                Text("Ошибка номера", color = ErrorRed, fontSize = 12.sp)
+                Text("Ошибка номера", color = Red, fontSize = 12.sp)
             }
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // ── Имя ───────────────────────────────────────
-            Text(
-                text = "Ваше имя",
-                fontSize = 13.sp,
-                color = TextGray
-            )
+            Text("Ваше имя", fontSize = 13.sp, color = Gray)
             Spacer(modifier = Modifier.height(6.dp))
             OutlinedTextField(
                 value = name,
                 onValueChange = { name = it },
                 modifier = Modifier.fillMaxWidth(),
-                placeholder = { Text("Введите имя", color = TextGray) },
+                placeholder = { Text("Введите имя", color = Gray) },
                 singleLine = true,
                 shape = RoundedCornerShape(10.dp),
                 colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = TextPrimary,
-                    unfocusedBorderColor = FieldBorder
+                    focusedBorderColor = Dark,
+                    unfocusedBorderColor = BorderDefault
                 )
             )
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // ── Дата рождения ─────────────────────────────
-            Text(
-                text = "Дата рождения",
-                fontSize = 13.sp,
-                color = TextGray
-            )
+            Text("Дата рождения", fontSize = 13.sp, color = Gray)
             Spacer(modifier = Modifier.height(6.dp))
             OutlinedTextField(
                 value = birthDate,
-                onValueChange = { },   // только через DatePicker
+                onValueChange = {},
                 modifier = Modifier
                     .fillMaxWidth()
                     .clickable { showDatePicker = true },
-                placeholder = { Text("ДД.ММ.ГГГГ", color = TextGray) },
+                placeholder = { Text("ДД.ММ.ГГГГ", color = Gray) },
                 readOnly = true,
-                enabled = false,      // делаем кликабельным через Box, disable убирает фокус
+                enabled = false,
                 singleLine = true,
                 shape = RoundedCornerShape(10.dp),
                 colors = OutlinedTextFieldDefaults.colors(
-                    disabledBorderColor = FieldBorder,
-                    disabledTextColor = TextPrimary,
-                    disabledPlaceholderColor = TextGray
+                    disabledBorderColor = BorderDefault,
+                    disabledTextColor = Dark,
+                    disabledPlaceholderColor = Gray
                 )
             )
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // ── Чекбокс согласия ──────────────────────────
-            Row(
-                verticalAlignment = Alignment.Top,
-                modifier = Modifier.fillMaxWidth()
-            ) {
+            Row(verticalAlignment = Alignment.Top, modifier = Modifier.fillMaxWidth()) {
                 Checkbox(
                     checked = agreed,
                     onCheckedChange = { agreed = it },
                     colors = CheckboxDefaults.colors(
-                        checkedColor = YellowPrimary,
-                        checkmarkColor = TextPrimary,
-                        uncheckedColor = TextGray
+                        checkedColor = Yellow,
+                        checkmarkColor = Dark,
+                        uncheckedColor = Gray
                     ),
-                    modifier = Modifier
-                        .size(20.dp)
-                        .padding(top = 2.dp)
+                    modifier = Modifier.size(20.dp).padding(top = 2.dp)
                 )
                 Spacer(modifier = Modifier.width(10.dp))
                 Text(
                     text = buildAnnotatedString {
                         append("Я согласен с ")
-                        withStyle(SpanStyle(color = BlueLink)) {
+                        withStyle(SpanStyle(color = Blue)) {
                             append("условиями обработки персональных данных")
                         }
                     },
                     fontSize = 13.sp,
-                    color = TextGray,
+                    color = Gray,
                     lineHeight = 18.sp
                 )
             }
 
             Spacer(modifier = Modifier.height(28.dp))
 
-            // ── Кнопка регистрации ────────────────────────
             Button(
                 onClick = {
-                    if (phone.isBlank()) {
-                        phoneError = true
-                        return@Button
-                    }
+                    if (phone.isBlank()) { phoneError = true; return@Button }
                     onSuccess()
                 },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(52.dp),
-                enabled = isFormValid,
+                modifier = Modifier.fillMaxWidth().height(52.dp),
+                enabled = formValid,
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = YellowPrimary,
-                    contentColor = TextPrimary,
-                    disabledContainerColor = YellowDisabled,
-                    disabledContentColor = TextGray
+                    containerColor = Yellow,
+                    contentColor = Dark,
+                    disabledContainerColor = YellowOff,
+                    disabledContentColor = Gray
                 ),
                 shape = RoundedCornerShape(12.dp)
             ) {
-                Text(
-                    text = "Зарегистрироваться",
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.SemiBold
-                )
+                Text("Зарегистрироваться", fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
             }
 
             Spacer(modifier = Modifier.height(32.dp))

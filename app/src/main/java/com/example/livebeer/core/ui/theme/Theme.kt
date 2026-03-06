@@ -5,21 +5,19 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 
-private val LightColorScheme = lightColorScheme(
+private val colorScheme = lightColorScheme(
     primary = Color(0xFFFFE000),
     onPrimary = Color(0xFF07080D),
     background = Color.White,
     onBackground = Color(0xFF07080D),
     surface = Color.White,
-    onSurface = Color(0xFF07080D),
+    onSurface = Color(0xFF07080D)
 )
 
 @Composable
-fun LiveBeerTheme(
-    content: @Composable () -> Unit
-) {
+fun LiveBeerTheme(content: @Composable () -> Unit) {
     MaterialTheme(
-        colorScheme = LightColorScheme,
+        colorScheme = colorScheme,
         typography = Typography,
         shapes = Shapes,
         content = content
